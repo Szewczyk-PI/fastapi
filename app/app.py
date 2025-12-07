@@ -1,7 +1,15 @@
 from fastapi import FastAPI, HTTPException
 from app.scheamas import PostCreate, PostReturn
+from app.db import Post, create_db_and_tables, get_async_session 
+from sqlalchemy.ext.asyncio import AsyncSession
+from contextlib import asynccontextmanager
 
-app = FastAPI()
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    await create_db_and_tables()
+    yield
+
+app = FastAPI(lifespan=lifespan)
 
 text_post = {1: {"title": "New Post", "content": "Cool New Post"},
              2: {"title": "Recenzja Filmu 'Gwiezdny Pył'", "content": "Wzruszająca opowieść fantasy z zaskakującymi zwrotami akcji"}, 
